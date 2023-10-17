@@ -20,7 +20,7 @@ else()
 endif()
 
 add_library(flann_cpp SHARED ${CPP_SOURCES})
-target_link_libraries(flann_cpp ${LZ4_LINK_LIBRARIES})
+target_link_libraries(flann_cpp PUBLIC ${LZ4_LINK_LIBRARIES})
 # export lz4 headers, so that MSVC to creates flann_cpp.lib
 set_target_properties(flann_cpp PROPERTIES WINDOWS_EXPORT_ALL_SYMBOLS YES)
 
@@ -69,10 +69,10 @@ endif()
 
 if (USE_MPI AND HDF5_IS_PARALLEL)
     add_executable(flann_mpi_server flann/mpi/flann_mpi_server.cpp)
-    target_link_libraries(flann_mpi_server flann_cpp ${HDF5_LIBRARIES} ${MPI_LIBRARIES} ${Boost_LIBRARIES})
+    target_link_libraries(flann_mpi_server PUBLIC flann_cpp ${HDF5_LIBRARIES} ${MPI_LIBRARIES} ${Boost_LIBRARIES})
 
     add_executable(flann_mpi_client flann/mpi/flann_mpi_client.cpp)
-    target_link_libraries(flann_mpi_client flann_cpp ${HDF5_LIBRARIES} ${MPI_LIBRARIES} ${Boost_LIBRARIES})
+    target_link_libraries(flann_mpi_client PUBLIC flann_cpp ${HDF5_LIBRARIES} ${MPI_LIBRARIES} ${Boost_LIBRARIES})
 
     install (TARGETS flann_mpi_client flann_mpi_server
         DESTINATION bin)
@@ -81,7 +81,7 @@ endif()
 
 if (BUILD_C_BINDINGS)
     add_library(flann_s STATIC ${C_SOURCES})
-    target_link_libraries(flann_s ${LZ4_LINK_LIBRARIES})
+    target_link_libraries(flann_s PUBLIC ${LZ4_LINK_LIBRARIES})
     if(CMAKE_COMPILER_IS_GNUCC OR CMAKE_COMPILER_IS_CLANG)
         set_target_properties(flann_s PROPERTIES COMPILE_FLAGS -fPIC)
     endif()
@@ -93,11 +93,11 @@ if (BUILD_C_BINDINGS)
     endif()
 
     add_library(flann SHARED ${C_SOURCES})
-    target_link_libraries(flann ${LZ4_LINK_LIBRARIES})
+    target_link_libraries(flann PUBLIC ${LZ4_LINK_LIBRARIES})
     list(APPEND flann_install_targets flann)
 
     if(MINGW AND OPENMP_FOUND)
-        target_link_libraries(flann gomp)
+        target_link_libraries(flann PUBLIC gomp)
     endif()
 
     set_target_properties(flann PROPERTIES

@@ -148,15 +148,37 @@ if (BUILD_CUDA_LIB)
 endif(BUILD_CUDA_LIB)
 
 find_package(lz4 CONFIG)
-if(lz4_DIR)
-    include_directories(${lz4_DIR}/../../../include)
-    link_directories(${lz4_DIR}/../../../lib)
-    link_libraries(lz4)
-else(lz4_DIR)
+if(lz4_FOUND)
+    message(STATUS "Found lz4")
+    set(FLANN_DEPENDS_LZ4 "find_dependency(lz4)")
+
+    set(LZ4_LINK_LIBRARIES LZ4::lz4_shared)
+    message(STATUS "LZ4_LINK_LIBRARIES: ${LZ4_LINK_LIBRARIES}")
+
+    # The LZ4 package (as of v1.9.4) does not correctly set the variables below, so we set them manually here.
+    get_target_property(LZ4_INTERFACE_INCLUDE_DIRECTORIES LZ4::lz4_shared INTERFACE_INCLUDE_DIRECTORIES)
+    message(STATUS "LZ4_INTERFACE_INCLUDE_DIRECTORIES: ${LZ4_INTERFACE_INCLUDE_DIRECTORIES}")
+    get_target_property(LZ4_INTERFACE_LINK_DIRECTORIES LZ4::lz4_shared INTERFACE_LINK_DIRECTORIES)
+    message(STATUS "LZ4_INTERFACE_LINK_DIRECTORIES: ${LZ4_INTERFACE_LINK_DIRECTORIES}")
+    message(STATUS "Warning: FLANN is overwriting LZ4_INTERFACE_LINK_DIRECTORIES!")
+    set_target_properties(LZ4::lz4_shared PROPERTIES INTERFACE_LINK_DIRECTORIES ${LZ4_INTERFACE_INCLUDE_DIRECTORIES}/../lib)
+    get_target_property(LZ4_INTERFACE_LINK_DIRECTORIES LZ4::lz4_shared INTERFACE_LINK_DIRECTORIES)
+    message(STATUS "LZ4_INTERFACE_LINK_DIRECTORIES: ${LZ4_INTERFACE_LINK_DIRECTORIES}")
+    get_target_property(LZ4_INTERFACE_LINK_DIRECTORIES LZ4::lz4_shared INTERFACE_LINK_DIRECTORIES)
+    get_target_property(LZ4_INTERFACE_LINK_LIBRARIES LZ4::lz4_shared INTERFACE_LINK_LIBRARIES)
+    message(STATUS "LZ4_INTERFACE_LINK_LIBRARIES: ${LZ4_INTERFACE_LINK_LIBRARIES}")
+
+
+    #set(LZ4_INCLUDE_DIRS ${lz4_DIR}/../../../include)
+    #include_directories(${LZ4_INCLUDE_DIRS})
+    #link_directories(${lz4_DIR}/../../../lib)
+    #link_libraries(lz4)
+    #message(STATUS "LZ4_INCLUDE_DIRS: ${LZ4_INCLUDE_DIRS}")
+else()
     find_package(PkgConfig REQUIRED)
     pkg_check_modules(LZ4 REQUIRED liblz4)
     include_directories(${LZ4_INCLUDE_DIRS})
-endif(lz4_DIR)
+endif()
 
 #set the C/C++ include path to the "include" directory
 include_directories(BEFORE ${PROJECT_SOURCE_DIR}/src/cpp)
